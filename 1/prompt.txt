@@ -1,0 +1,77 @@
+let's focs on 1773 issue
+
+---
+
+let's discuss the issue properly instead of coding it away help me understand
+
+---
+
+how to see what's in pre-push
+
+---
+
+if i wan tto start seeing code to understan the flow where should i start from
+
+---
+
+what is the starting point of this
+
+---
+
+let's take example like if i hit entire command how does it start in backend
+
+---
+
+what's cobra
+
+---
+
+yeah there is this worktree root what is it
+
+---
+
+yeah command entire import calude-code what will happen in backend the flow tell me the which files will get hit which methods will run sequentially
+
+---
+
+from root.go to import_cmd.go how does it go like wehre it matches claude-code
+
+---
+
+what was the bug repdouce means what commands will go through what
+
+---
+
+what is the fix
+
+---
+
+you were saying to use PrePush right
+
+---
+
+/graphify
+
+---
+
+the question is the solution we discussed it is good to
+
+---
+
+So that claim still rests on the grep we ran, not on this graph. Worth knowing before you cite the graph for anything about method callers. yeah find it verify once again to make sure that this is true and tell me what is
+
+---
+
+so what is the verdict becausd i am not follwing you
+
+---
+
+yeah let's wrtie code and we test it locally thenw e wil create PR we will reference it
+
+---
+
+when is there is push queue
+
+---
+
+everything is so confusing

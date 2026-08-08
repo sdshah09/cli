@@ -1,0 +1,179 @@
+@cmd/entire/cli/import_cmd.go:30-112 explain this
+
+---
+
+@cmd/entire/cli/import_cmd.go:30-112 explain this
+
+---
+
+@cmd/entire/cli/import_sync_notice.go:1-69 explain this one
+
+---
+
+it never reaches dashboard because importlogged in doing local?
+
+---
+
+th e git pre-push hook gets invoked when?
+
+---
+
+if i run entire import what is the command to for that you were to able import somethng
+
+---
+
+@cmd/entire/cli/agentimport/agentimport.go:69-93 my question is all the agent iporters are extending this but how do we know thye have all the methods
+
+---
+
+@cmd/entire/cli/agentimport/agentimport.go:188-285 explain this
+
+---
+
+in plain words explain with an example
+
+---
+
+@cmd/entire/cli/agentimport/agentimport.go:138-156 explain this
+
+---
+
+what does the strategy folder do
+
+---
+
+@cmd/entire/cli/strategy/manual_commit_push.go:301-317 what dthis ofor
+
+---
+
+@cmd/entire/cli/checkpointpolicy/remote.go:62-108 what does this do
+
+---
+
+didn;t understood
+
+---
+
+Wire the existing push into the import path. No new plumbing.
+
+The fix
+
+import_cmd.go, after the summary line (:103):
+
+if !dryRun {
+    warnIfImportNotSynced(c.OutOrStdout(), res.TurnsImported > 0 || res.TurnsSkipped > 0)
+    syncImportedCheckpoints(ctx, c.OutOrStdout(), repo, remoteFlag)   // ← new
+}
+
+New import_sync.go:
+
+// syncImportedCheckpoints pushes checkpoints an import wrote. Import creates no
+// commit, so the pre-push hook never fires and imported history would otherwise
+// sit local-only until an unrelated `git push` (issue #1773).
+//
+// Runs regardless of whether this run imported anything new: turns imported
+// while logged out stay queued, so a post-login re-run is the recovery path
+// even though it reports "0 imported (N already imported)".
+func syncImportedCheckpoints(ctx context.Context, w io.Writer, repo *git.Repository, remote string) {
+    if !importLoggedIn() {
+        return // warnIfImportNotSynced already explained why
+    }
+    pushed, pushDisabled, err := strategy.PushQueuedCheckpointRefs(ctx, repo, remote)
+    switch {
+    case err != nil:
+        logging.Warn(ctx, "import: checkpoint sync failed", "error", err)
+        fmt.Fprintf(w, "Note: could not sync imported history: %v\n", err)
+    case pushDisabled:
+        fmt.Fprintln(w, "Checkpoint pushing is disabled in settings; imported history stays local.")
+    case pushed == 0:
+        // already synced
+    default:
+        fmt.Fprintf(w, "Synced %d checkpoint(s) to %s.\n", pushed, remote)
+    }
+}
+
+Plus --remote defaulting to origin, and the same two lines in setup_import.go:245 so entire enable gets it too.
+
+That's the whole thing. ~40 lines.
+
+Why this shape
+
+PushQueuedCheckpointRefs already exists (manual_commit_push.go:300) with the exact signature needed — (pushed, pushDisabled, err) — and doctor_migrate.go:60-115 is a shipped precedent doing foreground "push now" with it. Copy that switch.
+
+It sidesteps the empty-remote hazard entirely. Checkpoint refs live under refs/entire/, not refs/heads/, so GitHub can never pick one as a default branch. The code says so at :78-82. That's why this needs no guard, while the v1 branch does.
+
+It doesn't touch the idempotency logic. Leave existing[] at agentimport.go:237 alone. The 6 refs in my repro are already queued — draining the queue recovers them whether or not this run imported anything.
+
+Scope: git-refs only
+
+Since #1900, every new repo is git-refs. Pre-#1900 repos on git-branch still need PrePush (queue-less, uses hasUnpushedBranchRef) — but it carries the empty-remote hazard and PrePush passes protect=false, so it needs care. Leave it out of this PR and say so; the legacy path still syncs via the hook as it does today.
+
+Tests
+
+importLoggedIn is already a package var "so tests can force the whole outcome" (import_sync_notice.go:34). Stub it plus the push:
+
+┌─────────────────────────────────────────────┬────────────────────────────────────────────────────────┐
+│                    case                     │                         expect                         │
+├─────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ logged out                                  │ no push attempted, notice printed                      │
+├─────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ logged in, refs queued                      │ push called, "Synced N checkpoint(s)"                  │
+├─────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ logged in, 0 new imports, refs still queued │ push still called ← the recovery case, the whole point │
+├─────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ push disabled in settings                   │ message says so, no error                              │
+├─────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ --dry-run                                   │ never pushes                                           │
+└─────────────────────────────────────────────┴────────────────────────────────────────────────────────┘
+
+Row 3 is the regression test for the actual bug.
+
+One thing to ask on the issue first
+
+The issue's own closing line, still unanswered:
+
+▎ confirm with the backend team that a connected-repo git push of the checkpoint refs is sufficient for dashboard ingestion
+
+If pushing alone doesn't populate the dashboard — because reportRepoEnabled (setup.go:976) never ran while logged out — then this PR makes the CLI print "Synced" while the user still sees an empty dashboard. Worth one comment on #1773 before you write the code, not after.
+
+✻ Crunched for 1m 13s what do you think about this solution for issue 1773
+
+---
+
+Backend question first — worth answering on #1773 before you merge. Pushing refs ≠ dashboard if reportRepoEnabled never ran / App isn’t connected. Otherwise CLI can print Synced N while the UI stays empty. If push alone isn’t enough, this PR still helps but the copy should not overclaim (“synced to remote” vs “will appear in dashboard”).
+
+Test hook — you’ll need a package var for the push (same pattern as importLoggedIn), e.g. var pushQueuedCheckpointRefs = strategy.PushQueuedCheckpointRefs. The proposal’s table assumes that; it isn’t in the sketch yet.
+
+ explain thi
+
+---
+
+What's true
+
+1. The bug is real and we reproduced it. Import writes checkpoints locally, queues them for push, and nothing ever pushes them. Verified live — 6 refs, 6 queued, 0 pushed.
+2. The fix is small. Call an existing function, PushQueuedCheckpointRefs, after import when the user is logged in. ~40 lines.
+3. PrePush exists and nobody calls it in production. I checked this three times. It's true. It's a good finding for the issue comment — but it's not what you should build on.
+
+What you do
+
+In import_cmd.go and setup_import.go, right after the existing warnIfImportNotSynced(...) line, add a call to strategy.PushQueuedCheckpointRefs.
+
+Copy the shape from doctor_migrate.go:60-115 — it already does exactly this ("push now" in the foreground).
+Copy the test shape from strategy/refs_push_test.go — it already tests that function four ways.
+
+The one rule that matters: run the push whenever logged in, not only when new turns were imported. That's what makes a post-login re-run recover the stranded history.
+
+The one thing to do first
+
+Ask on the issue: does pushing alone make the sessions appear in the dashboard, or does the repo also need to be connected?
+
+The issue's own author flagged this as unanswered. If the answer is "also needs connecting," your fix would print "Synced" while the dashboard stays empty — and you'd want to know that before writing code, not after.
+
+---
+So: ask the question on #1773 today, write the ~40 lines once someone answers.
+
+Everything else in the last few messages was me verifying that this plan rests on things that are actually true. It does. what do you thinjk about this
+
+---
+
+@cmd/entire/cli/doctor_migrate.go:1-147 what does this file do

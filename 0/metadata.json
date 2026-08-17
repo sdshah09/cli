@@ -1,0 +1,51 @@
+{
+  "cli_version": "0.0.0-20260808165056-80df0bbac715+dirty",
+  "checkpoint_id": "01M08KHX9P54WJ76X843W433DP",
+  "session_id": "1abf2118-23df-4a9b-aef9-16364ef5bb9f",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-17T19:35:41.116468Z",
+  "branch": "fix/2014-opencode-plugin-node-spawn",
+  "checkpoints_count": 14,
+  "files_touched": [
+    "cmd/entire/cli/agent/opencode/hooks_test.go"
+  ],
+  "agent": "Cursor",
+  "model": "cursor-grok-4.5-high",
+  "turn_id": "c6312da83f73",
+  "compact_transcript_start": 0,
+  "session_metrics": {
+    "turn_count": 14
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-17T19:35:41.093321Z",
+    "agent_lines": 197,
+    "agent_removed": 51,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 197,
+    "total_lines_changed": 248,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 732397,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "graphify-out/.graphify_labels.json": 1,
+        "graphify-out/.graphify_python": 1,
+        "graphify-out/.graphify_root": 1,
+        "graphify-out/GRAPH_REPORT.md": 2604,
+        "graphify-out/cache/stat-index.json": 1,
+        "graphify-out/cost.json": 12,
+        "graphify-out/graph.html": 320,
+        "graphify-out/graph.json": 724405,
+        "graphify-out/manifest.json": 5052
+      }
+    }
+  ]
+}

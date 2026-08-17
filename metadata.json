@@ -1,0 +1,19 @@
+{
+  "cli_version": "0.0.0-20260808165056-80df0bbac715+dirty",
+  "checkpoint_id": "01M08KHX9P54WJ76X843W433DP",
+  "strategy": "manual-commit",
+  "branch": "fix/2014-opencode-plugin-node-spawn",
+  "checkpoints_count": 14,
+  "files_touched": [
+    "cmd/entire/cli/agent/opencode/hooks_test.go"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ]
+}
